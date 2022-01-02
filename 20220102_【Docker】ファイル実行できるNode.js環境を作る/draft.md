@@ -23,7 +23,7 @@ EXPOSE 8888
 ~~~
 
 # Dockerfileの中身（ファイル実行も）
-こちらのDockerfileの内容であれば、
+こちらのDockerfileの内容であれば、ファイル実行もできる。
 ~~~Bash:Dockerfile
 FROM ubuntu:latest
 RUN apt-get update
