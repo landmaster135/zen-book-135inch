@@ -3,7 +3,7 @@
 
 # まず、このコードを。
 まず、このコードを実行すると、`displayList`にちゃんと値が入っていないことが確認できます。どうやらシャローコピーになっているようです。
-~~~javascirpt
+~~~javascript
 const endpoint = 'https://api.rss2json.com/v1/api.json';
 const feedUrl = 'https://zenn.dev/kinkinbeer135ml/feed';
 var rss_data;
