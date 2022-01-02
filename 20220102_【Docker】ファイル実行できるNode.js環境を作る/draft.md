@@ -16,7 +16,7 @@ graph TD;
 ```
 
 # Dockerfileの中身（対話だけ）
-今回ファイル実行ができる環境を作りたかったのですが、最初にNode.js対話環境だけを作ってしまうDockerfileを作ってBuildしてしまったので、これはJavascriptを打てるけどファイル実行はできないよと、メモっておく。
+今回ファイル実行ができる環境を作りたかったのですが、最初にNode.js対話環境だけを作るDockerfileを作ってBuildしてしまい詰まったので、これはJavascriptを打てるけどファイル実行はできないよと、メモっておく。
 ~~~Bash:Dockerfile
 FROM node:14
 EXPOSE 8888
