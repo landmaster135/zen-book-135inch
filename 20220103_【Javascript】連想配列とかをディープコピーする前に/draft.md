@@ -23,8 +23,8 @@ while(i < number_of_display){
     partOfDataList['title']   = dataList.items[i].title;
     partOfDataList['pubDate'] = dataList.items[i].pubDate;
     console.log(partOfDataList);
-    displayList.push([partOfDataList]);
-    // displayList.push([partOfDataList].map(list => ({...list})))
+    displayList.push(partOfDataList); // fix on 20220107
+    // displayList.push({...partOfDataList}) // fix on 20220107
     i++;
 }
 
@@ -57,8 +57,8 @@ while(i < number_of_display){
     partOfDataList['title']   = dataList.items[i].title;
     partOfDataList['pubDate'] = dataList.items[i].pubDate;
     console.log(partOfDataList);
-    // displayList.push([partOfDataList]);
-    displayList.push([partOfDataList].map(list => ({...list})))
+    // displayList.push(partOfDataList); // fix on 20220107
+    displayList.push({...partOfDataList}); // fix on 20220107
     i++;
 }
 
@@ -66,7 +66,7 @@ console.log(displayList);
 ~~~
 
 ## `console.log(displayList);`の結果（解消法その１）
-![](https://storage.googleapis.com/zenn-user-upload/d72fa46ca30f-20220103.png)
+![](https://storage.googleapis.com/zenn-user-upload/b3c8d8e00046-20220107.png)
 
 # 解消法その２（変数を毎回宣言）
 ## 調査用コード
@@ -90,15 +90,15 @@ while(i < number_of_display){
     partOfDataList['title']   = dataList.items[i].title;
     partOfDataList['pubDate'] = dataList.items[i].pubDate;
     console.log(partOfDataList);
-    displayList.push([partOfDataList]);
-    // displayList.push([partOfDataList].map(list => ({...list})))
+    displayList.push(partOfDataList); // fix on 20220107
+    // displayList.push({...partOfDataList}); // fix on 20220107
     i++;
 }
 
 console.log(displayList);
 ~~~
 ## `console.log(displayList);`の結果（解消法その２）
-![](https://storage.googleapis.com/zenn-user-upload/0f929f1a4d21-20220103.png)
+![](https://storage.googleapis.com/zenn-user-upload/b3e0587f2b84-20220107.png)
 
 # どっちが良いのか？
 ２通りの方法で出来ましたが、果たしてどちらの方を使っていきましょうか？
@@ -129,8 +129,8 @@ while(i < number_of_display){
     partOfDataList['title']   = dataList.items[i%5].title;
     partOfDataList['pubDate'] = dataList.items[i%5].pubDate;
     console.log(partOfDataList);
-    // displayList.push([partOfDataList]);
-    displayList.push([partOfDataList].map(list => ({...list})))
+    // displayList.push(partOfDataList);
+    displayList.push({...partOfDataList})
     i++;
 }
 const end = performance.now();
@@ -158,8 +158,8 @@ while(i < number_of_display){
     partOfDataList['title']   = dataList.items[i%5].title;
     partOfDataList['pubDate'] = dataList.items[i%5].pubDate;
     console.log(partOfDataList);
-    displayList.push([partOfDataList]);
-    // displayList.push([partOfDataList].map(list => ({...list})))
+    displayList.push(partOfDataList);
+    // displayList.push({...partOfDataList})
     i++;
 }
 const end = performance.now();
