@@ -41,6 +41,7 @@ console.log(displayList);
 # 解消法その１（~~ディープコピー~~スプレッド）
 ## 調査用コード
 まずは、`push`する際に~~ディープコピーする~~スプレッド構文を使う方法です。値はちゃんと入っていることが確認できます。
+
 ~~~javascript
 const endpoint = 'https://api.rss2json.com/v1/api.json';
 const feedUrl = 'https://zenn.dev/kinkinbeer135ml/feed';
@@ -74,6 +75,7 @@ console.log(displayList);
 # 解消法その２（変数を毎回宣言）
 ## 調査用コード
 次は、while句の外で宣言していた`partOfDataList`をwhileの中で都度宣言してみました。この方法でも解消できています。
+
 ~~~javascript
 const endpoint = 'https://api.rss2json.com/v1/api.json';
 const feedUrl = 'https://zenn.dev/kinkinbeer135ml/feed';
@@ -100,6 +102,7 @@ while(i < number_of_display){
 
 console.log(displayList);
 ~~~
+
 ## `console.log(displayList);`の結果（解消法その２）
 ![](https://storage.googleapis.com/zenn-user-upload/b3e0587f2b84-20220107.png)
 
