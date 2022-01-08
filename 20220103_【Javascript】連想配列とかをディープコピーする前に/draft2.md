@@ -7,6 +7,7 @@
 # まず、このコードを。
 ## 失敗コード
 まず、このコードを実行すると、`displayList`にちゃんと値が入っていないことが確認できます。どうやらシャローコピーになっているようです。
+
 ~~~javascript
 const endpoint = 'https://api.rss2json.com/v1/api.json';
 const feedUrl = 'https://zenn.dev/kinkinbeer135ml/feed';
@@ -33,6 +34,7 @@ while(i < number_of_display){
 
 console.log(displayList);
 ~~~
+
 ## `console.log(displayList);`の結果（失敗コード）
 ![](https://storage.googleapis.com/zenn-user-upload/21e169d189c2-20220103.png)
 
@@ -115,6 +117,7 @@ console.log(displayList);
 # 実行速度の調査
 ## 調査用コード
 次の調査に使うコードはこんな感じ。ざっと、30000件のレコードが入った連想配列の処理速度を計測しました。交互に何回か実行して計測しました。
+
 ~~~javascript:解消法その１（~~ディープコピー~~ スプレット構文）.js
 const endpoint = 'https://api.rss2json.com/v1/api.json';
 const feedUrl = 'https://zenn.dev/kinkinbeer135ml/feed';
