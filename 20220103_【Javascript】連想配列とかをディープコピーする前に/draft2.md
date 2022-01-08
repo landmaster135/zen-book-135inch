@@ -38,9 +38,9 @@ console.log(displayList);
 
 そこで、以下の方法で解消を試みました。
 
-# 解消法その１（~~ディープコピー~~スプレット）
+# 解消法その１（~~ディープコピー~~スプレッド）
 ## 調査用コード
-まずは、`push`する際に~~ディープコピーする~~スプレット構文を使う方法です。値はちゃんと入っていることが確認できます。
+まずは、`push`する際に~~ディープコピーする~~スプレッド構文を使う方法です。値はちゃんと入っていることが確認できます。
 ~~~javascript
 const endpoint = 'https://api.rss2json.com/v1/api.json';
 const feedUrl = 'https://zenn.dev/kinkinbeer135ml/feed';
