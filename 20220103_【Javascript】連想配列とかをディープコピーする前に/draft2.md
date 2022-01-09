@@ -119,90 +119,113 @@ console.log(displayList);
 次の調査に使うコードはこんな感じ。ざっと、30000件のレコードが入った連想配列の処理速度を計測しました。交互に何回か実行して計測しました。
 
 ~~~javascript:解消法その１（~~ディープコピー~~ スプレット構文）.js
+import fetch from 'node-fetch';
+import _ from 'lodash';
+
 const endpoint = 'https://api.rss2json.com/v1/api.json';
 const feedUrl = 'https://zenn.dev/kinkinbeer135ml/feed';
-var rss_data;
 
-let res = await fetch(`${endpoint}?rss_url=${feedUrl}`);
-let dataList = await res.json();
-let partOfDataList = {};
-let displayList = [];
+const main = async () => {
+    let res = await fetch(`${endpoint}?rss_url=${feedUrl}`);
+    let dataList = await res.json();
+    let partOfDataList = {};
+    let displayList = [];
 
-// declare for count
-let i = 0;
-const number_of_display = 30000;
+    // declare for count
+    let i = 0;
+    const number_of_display = 30000;
 
-const start = performance.now();
-while(i < number_of_display){
-    // let partOfDataList = {};
-    partOfDataList['title']   = dataList.items[i%5].title;
-    partOfDataList['pubDate'] = dataList.items[i%5].pubDate;
-    console.log(partOfDataList);
-    // displayList.push(partOfDataList); // fix on 20220107
-    displayList.push({...partOfDataList}) // fix on 20220107
-    i++;
+    const start = performance.now();
+    while(i < number_of_display){
+        // let partOfDataList = {};
+        partOfDataList['title']   = dataList.items[i%5].title;
+        partOfDataList['pubDate'] = dataList.items[i%5].pubDate;
+        console.log(partOfDataList);
+        displayList.push(partOfDataList); // fix on 20220107
+        // displayList.push({...partOfDataList}) // fix on 20220107
+        // displayList.push(_.cloneDeep(partOfDataList)) // fix on 20220107
+        i++;
+    }
+    const end = performance.now();
+
+    console.log(end - start);
 }
-const end = performance.now();
 
-console.log(end - start);
+main()
 ~~~
 
 ~~~javascript:解消法その２（変数を毎回宣言）.js
+import fetch from 'node-fetch';
+import _ from 'lodash';
+
 const endpoint = 'https://api.rss2json.com/v1/api.json';
 const feedUrl = 'https://zenn.dev/kinkinbeer135ml/feed';
-var rss_data;
 
-let res = await fetch(`${endpoint}?rss_url=${feedUrl}`);
-let dataList = await res.json();
-// let partOfDataList = {};
-let displayList = [];
-
-// declare for count
-let i = 0;
-const number_of_display = 30000;
-
-const start = performance.now();
-while(i < number_of_display){
+const main = async () => {
+    let res = await fetch(`${endpoint}?rss_url=${feedUrl}`);
+    let dataList = await res.json();
     let partOfDataList = {};
-    partOfDataList['title']   = dataList.items[i%5].title;
-    partOfDataList['pubDate'] = dataList.items[i%5].pubDate;
-    console.log(partOfDataList);
-    displayList.push(partOfDataList); // fix on 20220107
-    // displayList.push({...partOfDataList}) // fix on 20220107
-    i++;
-}
-const end = performance.now();
+    let displayList = [];
 
-console.log(end - start);
+    // declare for count
+    let i = 0;
+    const number_of_display = 30000;
+
+    const start = performance.now();
+    while(i < number_of_display){
+        // let partOfDataList = {};
+        partOfDataList['title']   = dataList.items[i%5].title;
+        partOfDataList['pubDate'] = dataList.items[i%5].pubDate;
+        console.log(partOfDataList);
+        // displayList.push(partOfDataList); // fix on 20220107
+        displayList.push({...partOfDataList}) // fix on 20220107
+        // displayList.push(_.cloneDeep(partOfDataList)) // fix on 20220107
+        i++;
+    }
+    const end = performance.now();
+    console.log(displayList);
+
+    console.log(end - start);
+}
+
+main()
 ~~~
 
 ~~~javascript:解消法その３（ディープコピー）.js
+import fetch from 'node-fetch';
+import _ from 'lodash';
+
 const endpoint = 'https://api.rss2json.com/v1/api.json';
 const feedUrl = 'https://zenn.dev/kinkinbeer135ml/feed';
-var rss_data;
 
-let res = await fetch(`${endpoint}?rss_url=${feedUrl}`);
-let dataList = await res.json();
-let partOfDataList = {};
-let displayList = [];
+const main = async () => {
+    let res = await fetch(`${endpoint}?rss_url=${feedUrl}`);
+    let dataList = await res.json();
+    let partOfDataList = {};
+    let displayList = [];
 
-// declare for count
-let i = 0;
-const number_of_display = 30000;
+    // declare for count
+    let i = 0;
+    const number_of_display = 30000;
 
-const start = performance.now();
-while(i < number_of_display){
-    // let partOfDataList = {};
-    partOfDataList['title']   = dataList.items[i%5].title;
-    partOfDataList['pubDate'] = dataList.items[i%5].pubDate;
-    console.log(partOfDataList);
-    // displayList.push(partOfDataList); // fix on 20220107
-    // displayList.push({...partOfDataList}) // fix on 20220107
-    displayList.push(_.cloneDeep(partOfDataList)) // fix on 20220107
-    i++;
+    const start = performance.now();
+    while(i < number_of_display){
+        // let partOfDataList = {};
+        partOfDataList['title']   = dataList.items[i%5].title;
+        partOfDataList['pubDate'] = dataList.items[i%5].pubDate;
+        console.log(partOfDataList);
+        // displayList.push(partOfDataList); // fix on 20220107
+        // displayList.push({...partOfDataList}) // fix on 20220107
+        displayList.push(_.cloneDeep(partOfDataList)) // fix on 20220107
+        i++;
+    }
+    const end = performance.now();
+    console.log(displayList);
+
+    console.log(end - start);
 }
-const end = performance.now();
 
+main()
 console.log(end - start);
 ~~~
 
