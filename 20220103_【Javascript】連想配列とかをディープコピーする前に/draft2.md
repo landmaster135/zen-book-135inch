@@ -336,3 +336,7 @@ main()
 # 参考
 https://qiita.com/\_kt15\_/items/0ae5085d61fa5598c76e
 https://qiita.com/BlueSilverCat/items/d27a551eb4498d69f7d0
+
+↓ディープコピーの種類は他にもこんなにある。（2022/01/10追記分）
+
+https://qiita.com/suin/items/80e687dd1789b9d9d2fd
