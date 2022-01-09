@@ -176,6 +176,36 @@ const end = performance.now();
 console.log(end - start);
 ~~~
 
+~~~javascript:解消法その３（ディープコピー）.js
+const endpoint = 'https://api.rss2json.com/v1/api.json';
+const feedUrl = 'https://zenn.dev/kinkinbeer135ml/feed';
+var rss_data;
+
+let res = await fetch(`${endpoint}?rss_url=${feedUrl}`);
+let dataList = await res.json();
+let partOfDataList = {};
+let displayList = [];
+
+// declare for count
+let i = 0;
+const number_of_display = 30000;
+
+const start = performance.now();
+while(i < number_of_display){
+    // let partOfDataList = {};
+    partOfDataList['title']   = dataList.items[i%5].title;
+    partOfDataList['pubDate'] = dataList.items[i%5].pubDate;
+    console.log(partOfDataList);
+    // displayList.push(partOfDataList); // fix on 20220107
+    // displayList.push({...partOfDataList}) // fix on 20220107
+    displayList.push(_.cloneDeep(partOfDataList)) // fix on 20220107
+    i++;
+}
+const end = performance.now();
+
+console.log(end - start);
+~~~
+
 ## 測定結果
 30000件での測定結果は以下のようになりました。毎回宣言のほうが少し速そうな感じはしますね。
 | Sessions |  ディープコピー  |  変数を毎回宣言  |
