@@ -6,119 +6,9 @@
 
 # まず、このコードを。
 ## 失敗コード
-まず、このコードを実行すると、`displayList`にちゃんと値が入っていないことが確認できます。どうやらシャローコピーになっているようです。
+まず、このコードを実行すると、`displayList`にちゃんと値が入っていないことが確認できます。どうやら~~シャローコピーになっている~~参照をコピーしただけなのが原因のようです。
 
 ~~~javascript
-const endpoint = 'https://api.rss2json.com/v1/api.json';
-const feedUrl = 'https://zenn.dev/kinkinbeer135ml/feed';
-var rss_data;
-
-let res = await fetch(`${endpoint}?rss_url=${feedUrl}`);
-let dataList = await res.json();
-let partOfDataList = {};
-let displayList = [];
-
-// declare for count
-let i = 0;
-const number_of_display = 5;
-
-while(i < number_of_display){
-    // let partOfDataList = {};
-    partOfDataList['title']   = dataList.items[i].title;
-    partOfDataList['pubDate'] = dataList.items[i].pubDate;
-    console.log(partOfDataList);
-    displayList.push(partOfDataList); // fix on 20220107
-    // displayList.push({...partOfDataList}) // fix on 20220107
-    i++;
-}
-
-console.log(displayList);
-~~~
-
-## `console.log(displayList);`の結果（失敗コード）
-![](https://storage.googleapis.com/zenn-user-upload/21e169d189c2-20220103.png)
-
-そこで、以下の方法で解消を試みました。
-
-# 解消法その１（~~ディープコピー~~スプレッド）
-## 調査用コード
-まずは、`push`する際に~~ディープコピーする~~スプレッド構文を使う方法です。値はちゃんと入っていることが確認できます。
-
-~~~javascript
-const endpoint = 'https://api.rss2json.com/v1/api.json';
-const feedUrl = 'https://zenn.dev/kinkinbeer135ml/feed';
-var rss_data;
-
-let res = await fetch(`${endpoint}?rss_url=${feedUrl}`);
-let dataList = await res.json();
-let partOfDataList = {};
-let displayList = [];
-
-// declare for count
-let i = 0;
-const number_of_display = 5;
-
-while(i < number_of_display){
-    // let partOfDataList = {};
-    partOfDataList['title']   = dataList.items[i].title;
-    partOfDataList['pubDate'] = dataList.items[i].pubDate;
-    console.log(partOfDataList);
-    // displayList.push(partOfDataList); // fix on 20220107
-    displayList.push({...partOfDataList}); // fix on 20220107
-    i++;
-}
-
-console.log(displayList);
-~~~
-
-## `console.log(displayList);`の結果（解消法その１）
-![](https://storage.googleapis.com/zenn-user-upload/b3c8d8e00046-20220107.png)
-
-# 解消法その２（変数を毎回宣言）
-## 調査用コード
-次は、while句の外で宣言していた`partOfDataList`をwhileの中で都度宣言してみました。この方法でも解消できています。
-
-~~~javascript
-const endpoint = 'https://api.rss2json.com/v1/api.json';
-const feedUrl = 'https://zenn.dev/kinkinbeer135ml/feed';
-var rss_data;
-
-let res = await fetch(`${endpoint}?rss_url=${feedUrl}`);
-let dataList = await res.json();
-// let partOfDataList = {};
-let displayList = [];
-
-// declare for count
-let i = 0;
-const number_of_display = 5;
-
-while(i < number_of_display){
-    let partOfDataList = {};
-    partOfDataList['title']   = dataList.items[i].title;
-    partOfDataList['pubDate'] = dataList.items[i].pubDate;
-    console.log(partOfDataList);
-    displayList.push(partOfDataList); // fix on 20220107
-    // displayList.push({...partOfDataList}); // fix on 20220107
-    i++;
-}
-
-console.log(displayList);
-~~~
-
-## `console.log(displayList);`の結果（解消法その２）
-![](https://storage.googleapis.com/zenn-user-upload/b3e0587f2b84-20220107.png)
-
-# どっちが良いのか？
-２通りの方法で出来ましたが、果たしてどちらの方を使っていきましょうか？
-僕としては、「変数を毎回宣言」する方法の方が可読性としては勝っていて良さげだなと感じました。
-しかし、毎回宣言するのは、速度的に遅そうじゃない？　どうなんだろう？
-次は、実行速度を調べてみました。
-
-# 実行速度の調査
-## 調査用コード
-次の調査に使うコードはこんな感じ。ざっと、30000件のレコードが入った連想配列の処理速度を計測しました。交互に何回か実行して計測しました。
-
-~~~javascript:解消法その１（~~ディープコピー~~ スプレット構文）.js
 import fetch from 'node-fetch';
 import _ from 'lodash';
 
@@ -133,7 +23,7 @@ const main = async () => {
 
     // declare for count
     let i = 0;
-    const number_of_display = 30000;
+    const number_of_display = 5;
 
     const start = performance.now();
     while(i < number_of_display){
@@ -141,45 +31,9 @@ const main = async () => {
         partOfDataList['title']   = dataList.items[i%5].title;
         partOfDataList['pubDate'] = dataList.items[i%5].pubDate;
         console.log(partOfDataList);
-        displayList.push(partOfDataList); // fix on 20220107
-        // displayList.push({...partOfDataList}) // fix on 20220107
-        // displayList.push(_.cloneDeep(partOfDataList)) // fix on 20220107
-        i++;
-    }
-    const end = performance.now();
-
-    console.log(end - start);
-}
-
-main()
-~~~
-
-~~~javascript:解消法その２（変数を毎回宣言）.js
-import fetch from 'node-fetch';
-import _ from 'lodash';
-
-const endpoint = 'https://api.rss2json.com/v1/api.json';
-const feedUrl = 'https://zenn.dev/kinkinbeer135ml/feed';
-
-const main = async () => {
-    let res = await fetch(`${endpoint}?rss_url=${feedUrl}`);
-    let dataList = await res.json();
-    let partOfDataList = {};
-    let displayList = [];
-
-    // declare for count
-    let i = 0;
-    const number_of_display = 30000;
-
-    const start = performance.now();
-    while(i < number_of_display){
-        // let partOfDataList = {};
-        partOfDataList['title']   = dataList.items[i%5].title;
-        partOfDataList['pubDate'] = dataList.items[i%5].pubDate;
-        console.log(partOfDataList);
-        // displayList.push(partOfDataList); // fix on 20220107
-        displayList.push({...partOfDataList}) // fix on 20220107
-        // displayList.push(_.cloneDeep(partOfDataList)) // fix on 20220107
+        displayList.push(partOfDataList); // fix on 20220110
+        // displayList.push({...partOfDataList}) // fix on 20220110
+        // displayList.push(_.cloneDeep(partOfDataList)) // fix on 20220110
         i++;
     }
     const end = performance.now();
@@ -190,6 +44,136 @@ const main = async () => {
 
 main()
 ~~~
+
+## `console.log(displayList);`の結果（失敗コード）
+
+~~~shell
+{
+  title: '【Javascript】連想配列とかをディープコピーする前に',
+  pubDate: '2022-01-03 06:16:42'
+}
+{
+  title: '【Docker】ファイル実行できるNode.js環境を作る',
+  pubDate: '2022-01-02 14:00:39'
+}
+{ title: 'Web上の画像をGoogleドライブに保存する', pubDate: '2021-12-26 10:06:05' }
+{
+  title: '【Javascript】Kindleの蔵書のタイトルだけを一覧で取得するツールを作りました',
+  pubDate: '2021-12-25 20:43:42'
+}
+{ title: '【Python】ジェネレータとyieldでちと遊んだ', pubDate: '2021-12-19 13:41:03' }
+[
+  {
+    title: '【Python】ジェネレータとyieldでちと遊んだ',
+    pubDate: '2021-12-19 13:41:03'
+  },
+  {
+    title: '【Python】ジェネレータとyieldでちと遊んだ',
+    pubDate: '2021-12-19 13:41:03'
+  },
+  {
+    title: '【Python】ジェネレータとyieldでちと遊んだ',
+    pubDate: '2021-12-19 13:41:03'
+  },
+  {
+    title: '【Python】ジェネレータとyieldでちと遊んだ',
+    pubDate: '2021-12-19 13:41:03'
+  },
+  {
+    title: '【Python】ジェネレータとyieldでちと遊んだ',
+    pubDate: '2021-12-19 13:41:03'
+  }
+]
+~~~
+
+そこで、以下の方法で解消を試みました。
+いずれの方法でも解消できています。
+
+# 解消法その１（変数を毎回宣言）
+## 調査用コード
+まずは、while句の外で宣言していた`partOfDataList`をwhileの中で都度宣言してみました。参照コピーですが実現可能です。
+
+~~~javascript
+import fetch from 'node-fetch';
+import _ from 'lodash';
+
+const endpoint = 'https://api.rss2json.com/v1/api.json';
+const feedUrl = 'https://zenn.dev/kinkinbeer135ml/feed';
+
+const main = async () => {
+    let res = await fetch(`${endpoint}?rss_url=${feedUrl}`);
+    let dataList = await res.json();
+    // let partOfDataList = {};
+    let displayList = [];
+
+    // declare for count
+    let i = 0;
+    const number_of_display = 5;
+
+    const start = performance.now();
+    while(i < number_of_display){
+        let partOfDataList = {};
+        partOfDataList['title']   = dataList.items[i%5].title;
+        partOfDataList['pubDate'] = dataList.items[i%5].pubDate;
+        console.log(partOfDataList);
+        displayList.push(partOfDataList); // fix on 20220110
+        // displayList.push({...partOfDataList}) // fix on 20220110
+        // displayList.push(_.cloneDeep(partOfDataList)) // fix on 20220110
+        i++;
+    }
+    const end = performance.now();
+    console.log(displayList);
+
+    console.log(end - start);
+}
+
+main()
+~~~
+
+# 解消法その２（~~ディープコピー~~スプレッド構文）
+## 調査用コード
+次は、`push`する際に~~ディープ~~シャローコピーするスプレッド構文を使う方法です。
+
+~~~javascript
+import fetch from 'node-fetch';
+import _ from 'lodash';
+
+const endpoint = 'https://api.rss2json.com/v1/api.json';
+const feedUrl = 'https://zenn.dev/kinkinbeer135ml/feed';
+
+const main = async () => {
+    let res = await fetch(`${endpoint}?rss_url=${feedUrl}`);
+    let dataList = await res.json();
+    let partOfDataList = {};
+    let displayList = [];
+
+    // declare for count
+    let i = 0;
+    const number_of_display = 5;
+
+    const start = performance.now();
+    while(i < number_of_display){
+        // let partOfDataList = {};
+        partOfDataList['title']   = dataList.items[i%5].title;
+        partOfDataList['pubDate'] = dataList.items[i%5].pubDate;
+        console.log(partOfDataList);
+        // displayList.push(partOfDataList); // fix on 20220110
+        displayList.push({...partOfDataList}) // fix on 20220110
+        // displayList.push(_.cloneDeep(partOfDataList)) // fix on 20220110
+        i++;
+    }
+    const end = performance.now();
+    console.log(displayList);
+
+    console.log(end - start);
+}
+
+main()
+~~~
+
+# 解消法その３（ディープコピー）
+## 調査用コード
+次は、`push`する際にディープコピーするを使う方法です。lodashを使いました。
 
 ~~~javascript:解消法その３（ディープコピー）.js
 import fetch from 'node-fetch';
@@ -206,7 +190,7 @@ const main = async () => {
 
     // declare for count
     let i = 0;
-    const number_of_display = 30000;
+    const number_of_display = 5;
 
     const start = performance.now();
     while(i < number_of_display){
@@ -214,9 +198,9 @@ const main = async () => {
         partOfDataList['title']   = dataList.items[i%5].title;
         partOfDataList['pubDate'] = dataList.items[i%5].pubDate;
         console.log(partOfDataList);
-        // displayList.push(partOfDataList); // fix on 20220107
-        // displayList.push({...partOfDataList}) // fix on 20220107
-        displayList.push(_.cloneDeep(partOfDataList)) // fix on 20220107
+        // displayList.push(partOfDataList); // fix on 20220110
+        // displayList.push({...partOfDataList}) // fix on 20220110
+        displayList.push(_.cloneDeep(partOfDataList)) // fix on 20220110
         i++;
     }
     const end = performance.now();
@@ -229,9 +213,98 @@ main()
 console.log(end - start);
 ~~~
 
+## `console.log(displayList);`の結果（解消法その１～３）
+
+~~~shell
+{
+  title: '【Javascript】連想配列とかをディープコピーする前に',
+  pubDate: '2022-01-03 06:16:42'
+}
+{
+  title: '【Docker】ファイル実行できるNode.js環境を作る',
+  pubDate: '2022-01-02 14:00:39'
+}
+{ title: 'Web上の画像をGoogleドライブに保存する', pubDate: '2021-12-26 10:06:05' }
+{
+  title: '【Javascript】Kindleの蔵書のタイトルだけを一覧で取得するツールを作りました',
+  pubDate: '2021-12-25 20:43:42'
+}
+{ title: '【Python】ジェネレータとyieldでちと遊んだ', pubDate: '2021-12-19 13:41:03' }
+[
+  {
+    title: '【Javascript】連想配列とかをディープコピーする前に',
+    pubDate: '2022-01-03 06:16:42'
+  },
+  {
+    title: '【Docker】ファイル実行できるNode.js環境を作る',
+    pubDate: '2022-01-02 14:00:39'
+  },
+  { title: 'Web上の画像をGoogleドライブに保存する', pubDate: '2021-12-26 10:06:05' },
+  {
+    title: '【Javascript】Kindleの蔵書のタイトルだけを一覧で取得するツールを作りました',
+    pubDate: '2021-12-25 20:43:42'
+  },
+  {
+    title: '【Python】ジェネレータとyieldでちと遊んだ',
+    pubDate: '2021-12-19 13:41:03'
+  }
+]
+~~~
+
+# どれが良いのか？
+~~２~~３通りの方法で出来ましたが、果たしてどれを使っていきましょうか？
+僕としては、~~「変数を毎回宣言」する方法の方が可読性としては勝っていて良さげだなと感じました。~~
+→　追記：[standard software](https://zenn.dev/standard_soft)さんからの指摘で、以前は書き方に問題がありました。しっかり書いたら特に可読性に違いは無さそうですね。
+しかし、毎回宣言するのは、速度的に遅そうじゃない？　どうなんだろう？
+次は、実行速度を調べてみました。
+
+# 実行速度の調査
+## 調査用コード
+次の調査に使うコードはこんな感じ。ざっと、30000件のレコードが入った連想配列の処理速度を計測しました。何回か実行して計測しました。
+例えば、その１は以下の感じです。
+
+~~~javascript:解消法その１（変数を毎回宣言）.js
+import fetch from 'node-fetch';
+import _ from 'lodash';
+
+const endpoint = 'https://api.rss2json.com/v1/api.json';
+const feedUrl = 'https://zenn.dev/kinkinbeer135ml/feed';
+
+const main = async () => {
+    let res = await fetch(`${endpoint}?rss_url=${feedUrl}`);
+    let dataList = await res.json();
+    // let partOfDataList = {};
+    let displayList = [];
+
+    // declare for count
+    let i = 0;
+    const number_of_display = 30000;
+
+    const start = performance.now();
+    while(i < number_of_display){
+        let partOfDataList = {};
+        partOfDataList['title']   = dataList.items[i%5].title;
+        partOfDataList['pubDate'] = dataList.items[i%5].pubDate;
+        console.log(partOfDataList);
+        displayList.push(partOfDataList); // fix on 20220110
+        // displayList.push({...partOfDataList}) // fix on 20220110
+        // displayList.push(_.cloneDeep(partOfDataList)) // fix on 20220110
+        i++;
+    }
+    const end = performance.now();
+    console.log(displayList);
+
+    console.log(end - start);
+}
+
+main()
+~~~
+
 ## 測定結果
 30000件での測定結果は以下のようになりました。毎回宣言のほうが少し速そうな感じはしますね。
-| Sessions |  ディープコピー  |  変数を毎回宣言  |
+→　（2022/01/10追記）これは、執筆当初、開発者ツールで動くスクリプトで動かした結果になります。
+
+| Sessions |  ~~ディープコピー~~シャローコピー  |  変数を毎回宣言  |
 | ---- | ---- | ---- |
 | 1st |  2076.10  |  1967.60  |
 | 2nd |  2061.19  |  1974  |
@@ -240,14 +313,17 @@ console.log(end - start);
 | 5th |  2130  |  1961.10  |
 | Avg. |  2083.57  |  2003.86  |
 
-| Sessions |  ディープコピー  |  変数を毎回宣言  |
-| ---- | ---- | ---- |
-| 1st |  1994.40  |    |
-| 2nd |    |    |
-| 3rd |    |    |
-| 4th |    |    |
-| 5th |    |    |
-| Avg. |    |    |
+## 測定結果その２（2022/01/10追記分）
+追加で、ディープコピーを含めた３通りの方法をnode.js環境で試しました。
+
+| Sessions |  変数を毎回宣言  |  シャローコピー  |  ディープコピー  |
+| ---- | ---- | ---- |  ----  |
+| 1st |    |    |    |
+| 2nd |    |    |    |
+| 3rd |    |    |    |
+| 4th |    |    |    |
+| 5th |    |    |    |
+| Avg. |    |    |    |
 
 # おしまい
 ディープコピーする前に、変数を毎回宣言する方法も検討してみては？
